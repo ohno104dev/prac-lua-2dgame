@@ -29,6 +29,8 @@ function love.mousepressed(x, y, button, istouch, presses)
 		local mouseToTarget = distanceBetween(x, y, target.x,target.y)
 		if mouseToTarget < target.radius then
 			score = score + 1
+			target.x = math.random(target.radius, love.graphics.getWidth() - target.radius)
+			target.y = math.random(target.radius, love.graphics.getHeight() - target.radius)
 		end
 	end
 end

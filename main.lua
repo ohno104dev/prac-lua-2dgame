@@ -8,6 +8,8 @@ function love.update(dt)
 end
 
 function love.draw()
-	love.graphics.rectangle("fill", 200, 400, 200, 100)
-	love.graphics.circle("line", 300, 200, 100)
+	love.graphics.setColor(0, 1, 0)
+	love.graphics.rectangle("fill", 200, 250, 200, 100)
+	love.graphics.setColor(1, 0.63, 0)
+	love.graphics.circle("fill", 300, 200, 100)
 end

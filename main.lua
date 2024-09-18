@@ -32,6 +32,12 @@ function love.update(dt)
 	for i, u in ipairs(ufos) do
 		u.x = u.x + math.cos(ufoPlayerAngle(u)) * u.speed * dt
 		u.y = u.y + math.sin(ufoPlayerAngle(u)) * u.speed * dt
+
+		if distanceBetween(u.x, u.y, player.x, player.y) < 30 then
+			for i, u in ipairs(ufos) do
+				ufos[i] = nil
+			end
+		end
 	end
 end
 
@@ -62,12 +68,12 @@ function love.keypressed(key)
 end
 
 function playerMouseAngle()
-	return math.atan2(player.y - love.mouse.getY(), player.x - love.mouse.getX()) - (math.pi / 2)
+	return math.atan2(player.y - love.mouse.getY(), player.x - love.mouse.getX()) + math.pi
 end
 
 function ufoPlayerAngle(ufo)
 	-- return math.atan2(player.y - ufo.y, player.x - ufo.x) - math.pi
-	return math.atan2(player.y - ufo.y, player.x - ufo.x) + (2 * math.pi )
+	return math.atan2(player.y - ufo.y, player.x - ufo.x)
 end
 
 function swapnUfo()
@@ -78,4 +84,8 @@ function swapnUfo()
 	ufo.speed = 100 + math.random(10) * 20
 
 	table.insert(ufos, ufo)
+end
+
+function distanceBetween(x1, y1, x2, y2)
+	return math.sqrt((x2 - x1)^2 + (y2 - y1)^2)
 end

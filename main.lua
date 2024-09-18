@@ -45,6 +45,29 @@ function love.update(dt)
 		b.x = b.x + math.cos(b.direction) * b.speed * dt
 		b.y = b.y + math.sin(b.direction) * b.speed * dt
 	end
+
+	for i, u in ipairs(ufos) do
+		for j, b in ipairs(bullets) do
+			if distanceBetween(u.x, u.y, b.x, b.y) < 20 then
+				u.dead = true
+				b.dead = true
+			end
+		end
+	end
+
+	for i =#ufos,1 , -1 do
+		local u = ufos[i]
+		if u.dead == true then
+			table.remove(ufos, i)
+		end
+	end
+
+	for i =#bullets,1 , -1 do
+		local u = bullets[i]
+		if u.dead == true then
+			table.remove(bullets, i)
+		end
+	end
 end
 
 function love.draw()
@@ -105,6 +128,7 @@ function swapnUfo()
 	ufo.y = math.random(0,love.graphics.getHeight())
 	ufo.kind = (math.random(0,3) % 3) + 1
 	ufo.speed = 100 + math.random(10) * 20
+	ufo.dead = false
 
 	table.insert(ufos, ufo)
 end
@@ -114,6 +138,7 @@ function spawnBullet()
 	bullet.x = player.x
 	bullet.y = player.y
 	bullet.speed = 500
+	bullet.dead = false
 	bullet.direction = playerMouseAngle()
 	table.insert(bullets, bullet)
 end

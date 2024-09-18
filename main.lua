@@ -1,4 +1,6 @@
 function love.load()
+	math.randomseed(os.time())
+
 	sprites = {}
 	sprites.space = love.graphics.newImage('sprites/space.jpeg')
 	sprites.player = love.graphics.newImage('sprites/player.png')
@@ -11,29 +13,35 @@ function love.load()
 	player.x = love.graphics.getWidth() / 2
 	player.y = love.graphics.getHeight() / 2
 	player.speed = 180
+	player.damage = false
+
+	mainFont = love.graphics.newFont(30)
+	subFont = love.graphics.newFont(15)
 
 	ufos = {}
 	bullets = {}
 
-	gameState = 2
-	maxTime = 2
+	score = 0
+	gameState = 1
+	maxTime = 1.8
 	timer = maxTime
 end
 
 function love.update(dt)
-	if love.keyboard.isDown("d") then
-		player.x = player.x + player.speed * dt
+	if gameState == 2 then
+		if love.keyboard.isDown("d") and player. x < love.graphics.getWidth() then
+			player.x = player.x + player.speed * dt
+		end
+		if love.keyboard.isDown("a") and player.x > 0 then
+			player.x = player.x - player.speed * dt
+		end
+		if love.keyboard.isDown("w") and player.y > 0 then
+			player.y = player.y - player.speed * dt
+		end
+		if love.keyboard.isDown("s") and player.y < love.graphics.getHeight() then
+			player.y = player.y + player.speed * dt
+		end
 	end
-	if love.keyboard.isDown("a") then
-		player.x = player.x - player.speed * dt
-	end
-	if love.keyboard.isDown("w") then
-		player.y = player.y - player.speed * dt
-	end
-	if love.keyboard.isDown("s") then
-		player.y = player.y + player.speed * dt
-	end
-
 	for i, u in ipairs(ufos) do
 		u.x = u.x + math.cos(ufoPlayerAngle(u)) * u.speed * dt
 		u.y = u.y + math.sin(ufoPlayerAngle(u)) * u.speed * dt
@@ -41,7 +49,18 @@ function love.update(dt)
 		if distanceBetween(u.x, u.y, player.x, player.y) < 30 then
 			for i, u in ipairs(ufos) do
 				ufos[i] = nil
-				gameState = 1
+
+				if player.damage  then
+					gameState = 1
+					player.x = love.graphics.getWidth() / 2
+					player.y = love.graphics.getHeight() / 2
+					player.damage = false
+				else
+					player.damage = true
+					player.speed = player.speed * 2
+				end
+
+
 			end
 		end
 	end
@@ -56,6 +75,8 @@ function love.update(dt)
 			if distanceBetween(u.x, u.y, b.x, b.y) < 20 then
 				u.dead = true
 				b.dead = true
+
+				score = score + u.kind
 			end
 		end
 	end
@@ -78,7 +99,7 @@ function love.update(dt)
 		timer = timer - dt
 		if timer <= 0 then
 			swapnUfo()
-			maxTime = 0.95 * maxTime
+			maxTime = 0.9 * maxTime
 			timer = maxTime
 		end
 	end
@@ -86,8 +107,25 @@ end
 
 function love.draw()
 	love.graphics.draw(sprites.space, 0, 0, 0, love.graphics.getWidth() / sprites.space:getWidth(), love.graphics.getHeight() / sprites.space:getHeight())
-	love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), 1.5, 1.5
+	if player.damage and gameState ~= 1 then
+		love.graphics.setColor(1,0,0)
+		love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), 1.5, 1.5
 	, sprites.player:getWidth()/2,sprites.player:getHeight()/2)
+	else
+		love.graphics.draw(sprites.player, player.x, player.y, playerMouseAngle(), 1.5, 1.5
+		, sprites.player:getWidth()/2,sprites.player:getHeight()/2)
+	end
+	love.graphics.setColor(1,1,1)
+
+	if gameState == 1 then
+		love.graphics.setFont(mainFont)
+		love.graphics.printf({{1,1,0},"Click anywhere to begin!"}, 0, 50, love.graphics.getWidth(), "center")
+		love.graphics.setFont(subFont)
+		love.graphics.printf({{0.8,0.8,0},"A,W,S,D to move!"}, 0, 100, love.graphics.getWidth(), "center")
+		love.graphics.printf({{0.8,0.8,0},"right click to shoot!"}, 0, 120, love.graphics.getWidth(), "center")
+	end
+	love.graphics.setFont(mainFont)
+	love.graphics.printf({{1,1,0},"Score: ".. score}, 0, love.graphics.getHeight() - 100, love.graphics.getWidth(), "center")
 
 	for i, u in ipairs(ufos) do 
 		if u.kind == 1 then
@@ -122,8 +160,15 @@ function love.keypressed(key)
 end
 
 function love.mousepressed(x, y, button)
-	if button == 1 then
+	if button == 1 and gameState == 2 then
 		spawnBullet()
+	elseif button == 1 and gameState == 1 then
+		gameState = 2
+		maxTime = 1.8
+		timer = maxTime
+		score = 0
+		player.damage = false
+		player.speed = 180
 	end
 end
 

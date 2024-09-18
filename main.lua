@@ -124,11 +124,26 @@ end
 
 function swapnUfo()
 	local ufo = {}
-	ufo.x = math.random(0,love.graphics.getWidth())
-	ufo.y = math.random(0,love.graphics.getHeight())
+	ufo.x = 0
+	ufo.y = 0
 	ufo.kind = (math.random(0,3) % 3) + 1
 	ufo.speed = 100 + math.random(10) * 20
 	ufo.dead = false
+
+	local side = math.random(1, 4)
+	if side == 1 then
+		ufo.x = -30
+		ufo.y = math.random(0,love.graphics.getHeight())
+	elseif side == 2 then
+		ufo.x = love.graphics.getWidth() + 30
+		ufo.y = math.random(0,love.graphics.getHeight())
+	elseif side == 3 then
+		ufo.x = math.random(0,love.graphics.getWidth())
+		ufo.y = -30
+	elseif side == 4 then
+		ufo.x = math.random(0,love.graphics.getWidth())
+		ufo.y = love.graphics.getHeight() + 30
+	end
 
 	table.insert(ufos, ufo)
 end
